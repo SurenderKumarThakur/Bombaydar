@@ -12,11 +12,12 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const post = getPost(slug);
   if (!post) return {};
+  const isFr = locale === 'fr';
   return {
     title: post.title,
     description: post.description,
@@ -24,9 +25,9 @@ export async function generateMetadata({
     openGraph: {
       title: post.title,
       description: post.description,
-      url: `https://www.bombaydar.com/blog/${post.slug}`,
+      url: `https://www.bombaydar.com/${locale}/blog/${post.slug}`,
       siteName: "Bombay Restaurant",
-      locale: "en_US",
+      locale: isFr ? "fr_FR" : "en_US",
       type: "article",
       publishedTime: post.date,
       images: [{ url: post.image, alt: post.imageAlt }],
@@ -38,7 +39,12 @@ export async function generateMetadata({
       images: [post.image],
     },
     alternates: {
-      canonical: `https://www.bombaydar.com/blog/${post.slug}`,
+      canonical: `https://www.bombaydar.com/${locale}/blog/${post.slug}`,
+      languages: {
+        en: `https://www.bombaydar.com/en/blog/${post.slug}`,
+        fr: `https://www.bombaydar.com/fr/blog/${post.slug}`,
+        "x-default": `https://www.bombaydar.com/en/blog/${post.slug}`,
+      },
     },
   };
 }
@@ -46,11 +52,13 @@ export async function generateMetadata({
 export default async function BlogPostPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const post = getPost(slug);
   if (!post) notFound();
+  const isFr = locale === 'fr';
+  const localePrefix = isFr ? '/fr' : '/en';
 
   return (
     <div className="location-page-wrapper">
@@ -76,16 +84,16 @@ export default async function BlogPostPage({
               name: 'Bombay Restaurant Morocco',
               url: 'https://www.bombaydar.com',
             },
-            mainEntityOfPage: `https://www.bombaydar.com/blog/${post.slug}`,
+            mainEntityOfPage: `https://www.bombaydar.com/${locale}/blog/${post.slug}`,
           }),
         }}
       />
 
       <section className="relative pt-32 pb-10 bg-black/40">
         <div className="container mx-auto px-4 max-w-3xl">
-          <Breadcrumbs items={[{ name: "Journal", url: "/blog" }, { name: post.title.slice(0, 40) + "…", url: `/blog/${post.slug}` }]} />
+          <Breadcrumbs items={[{ name: isFr ? "Journal" : "Journal", url: `${localePrefix}/blog` }, { name: post.title.slice(0, 40) + "…", url: `${localePrefix}/blog/${post.slug}` }]} />
           <span className="text-xs uppercase tracking-widest text-gold font-bold block mt-6 mb-2">
-            {new Date(post.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {post.readMinutes} min read
+            {new Date(post.date).toLocaleDateString(isFr ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {post.readMinutes} min read
           </span>
           <h1 className="font-serif text-3xl md:text-4xl font-bold text-white mb-6">{post.title}</h1>
         </div>
@@ -120,8 +128,8 @@ export default async function BlogPostPage({
 
         <div className="mt-12 p-8 glass-panel rounded-2xl text-center reveal-on-scroll up">
           <h2 className="font-serif text-xl font-bold text-white mb-2">Hungry after all that?</h2>
-          <p className="text-sm text-sand mb-5">Taste it at any of our three locations in Marrakech &amp; Casablanca.</p>
-          <Link href="/locations" className="btn-primary">Find Your Table</Link>
+          <p className="text-sm text-sand mb-5">Taste it at any of our three locations in Marrakech & Casablanca.</p>
+          <Link href={`${localePrefix}/locations`} className="btn-primary">Find Your Table</Link>
         </div>
       </article>
     </div>
