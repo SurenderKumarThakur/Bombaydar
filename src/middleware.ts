@@ -47,6 +47,12 @@ function getLocale(request: NextRequest): string {
   return defaultLocale;
 }
 
+function hasLocale(pathname: string): boolean {
+  return locales.some(
+    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
+  );
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -75,12 +81,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check if pathname already has a locale
-  const pathnameHasLocale = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  );
-
-  if (pathnameHasLocale) {
+  // If pathname already has a locale, let it through
+  if (hasLocale(pathname)) {
     return NextResponse.next();
   }
 
@@ -95,12 +97,19 @@ export function middleware(request: NextRequest) {
   }
 
   // For any other path without locale, redirect to default locale
-  const locale = getLocale(request);
-  const url = request.nextUrl.clone();
-  url.pathname = `/${locale}${pathname}`;
-  const response = NextResponse.redirect(url);
-  response.cookies.set('NEXT_LOCALE', locale, { path: '/', maxAge: 31536000 });
-  return response;
+    const locale = getLocale(request);
+    const targetPath = `/${locale}${pathname}`;
+  
+    // Prevent redirect loop: if target is same as current, don't redirect
+    if (targetPath === pathname) {
+      return NextResponse.next();
+    }
+  
+    const url = request.nextUrl.clone();
+    url.pathname = targetPath;
+    const response = NextResponse.redirect(url);
+    response.cookies.set('NEXT_LOCALE', locale, { path: '/', maxAge: 31536000 });
+    return response;
 }
 
 export const config = {
