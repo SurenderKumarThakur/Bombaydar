@@ -48,11 +48,9 @@ function getLocale(request: NextRequest): string {
 }
 
 function hasLocale(pathname: string): boolean {
-  for (const locale of locales) {
-    if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
-      return true;
-    }
-  }
+  // Explicit checks for exact matches and prefix matches
+  if (pathname === '/en' || pathname === '/fr') return true;
+  if (pathname.startsWith('/en/') || pathname.startsWith('/fr/')) return true;
   return false;
 }
 
@@ -84,8 +82,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // If pathname already has a locale, let it through
-  if (hasLocale(pathname)) {
+  // Explicit check for locale paths - these should NOT be redirected
+  if (pathname === '/en' || pathname === '/fr' || pathname.startsWith('/en/') || pathname.startsWith('/fr/')) {
     return NextResponse.next();
   }
 
@@ -103,7 +101,7 @@ export function middleware(request: NextRequest) {
   const locale = getLocale(request);
   const targetPath = `/${locale}${pathname}`;
   
-  // Prevent redirect loop: if target equals current path, don't redirect
+  // Prevent redirect loop
   if (targetPath === pathname) {
     return NextResponse.next();
   }
