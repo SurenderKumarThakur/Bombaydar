@@ -97,19 +97,19 @@ export function middleware(request: NextRequest) {
   }
 
   // For any other path without locale, redirect to default locale
-    const locale = getLocale(request);
-    const targetPath = `/${locale}${pathname}`;
+  const locale = getLocale(request);
+  const targetPath = `/${locale}${pathname}`;
   
-    // Prevent redirect loop: if target is same as current, don't redirect
-    if (targetPath === pathname) {
-      return NextResponse.next();
-    }
+  // Prevent redirect loop
+  if (targetPath === pathname) {
+    return NextResponse.next();
+  }
   
-    const url = request.nextUrl.clone();
-    url.pathname = targetPath;
-    const response = NextResponse.redirect(url);
-    response.cookies.set('NEXT_LOCALE', locale, { path: '/', maxAge: 31536000 });
-    return response;
+  const url = request.nextUrl.clone();
+  url.pathname = targetPath;
+  const response = NextResponse.redirect(url);
+  response.cookies.set('NEXT_LOCALE', locale, { path: '/', maxAge: 31536000 });
+  return response;
 }
 
 export const config = {
