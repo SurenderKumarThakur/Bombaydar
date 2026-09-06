@@ -48,9 +48,12 @@ function getLocale(request: NextRequest): string {
 }
 
 function hasLocale(pathname: string): boolean {
-  return locales.some(
-    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
-  );
+  for (const locale of locales) {
+    if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function middleware(request: NextRequest) {
@@ -100,7 +103,7 @@ export function middleware(request: NextRequest) {
   const locale = getLocale(request);
   const targetPath = `/${locale}${pathname}`;
   
-  // Prevent redirect loop
+  // Prevent redirect loop: if target equals current path, don't redirect
   if (targetPath === pathname) {
     return NextResponse.next();
   }
@@ -114,12 +117,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico, sitemap.xml, robots.txt (public files)
-     */
     '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|images).*)',
   ],
 };
