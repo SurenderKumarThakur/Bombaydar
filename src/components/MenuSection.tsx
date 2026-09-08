@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import { generateMenuItemSchema } from '@/lib/schema';
 
@@ -25,27 +25,9 @@ interface MenuSectionProps {
   defaultBranch?: 'gueliz' | 'medina' | 'casablanca';
 }
 
-export default function MenuSection({ defaultBranch = 'gueliz' }: MenuSectionProps) {
-  const [lang, setLang] = useState<'EN' | 'FR'>('EN');
-  const [selectedBranch, setSelectedBranch] = useState<'gueliz' | 'medina' | 'casablanca'>(defaultBranch);
-  const [activeTab, setActiveTab] = useState("starters");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterVeg, setFilterVeg] = useState(false);
-  const [filterSpicy, setFilterSpicy] = useState(false);
-  const [showMenuScanModal, setShowMenuScanModal] = useState(false);
-  const [scanBranch, setScanBranch] = useState<'medina' | 'casablanca'>('medina');
-  const [currentScanPage, setCurrentScanPage] = useState(1);
-
-  useEffect(() => {
-    const handleLangChange = (e: Event) => {
-      const customEvent = e as CustomEvent<'EN' | 'FR'>;
-      setLang(customEvent.detail);
-    };
-    window.addEventListener('langChange', handleLangChange);
-    return () => window.removeEventListener('langChange', handleLangChange);
-  }, []);
-
-  const categories = [
+// Static reference data — hoisted out of the component so it isn't
+// reallocated on every render (it never depends on props or state).
+const CATEGORIES = [
     { id: "starters", label: { EN: "Starters & Salads", FR: "Entrées & Salades" } },
     { id: "tandoor", label: { EN: "Tandoor Grills", FR: "Grillades Tandoor" } },
     { id: "fusion", label: { EN: "Indo-Chinese Fusion", FR: "Fusion Indo-Chinoise" } },
@@ -57,9 +39,9 @@ export default function MenuSection({ defaultBranch = 'gueliz' }: MenuSectionPro
     { id: "biryanis", label: { EN: "Biryani & Rice", FR: "Biryani & Riz" } },
     { id: "breads", label: { EN: "Naan & Breads", FR: "Naan & Pains" } },
     { id: "drinks", label: { EN: "Desserts & Lassis", FR: "Desserts & Boissons" } }
-  ];
+];
 
-  const menuItems: MenuItem[] = [
+const MENU_ITEMS: MenuItem[] = [
     // 1. STARTERS & SALADS
     {
       id: "veg-samosa",
@@ -898,9 +880,69 @@ export default function MenuSection({ defaultBranch = 'gueliz' }: MenuSectionPro
       isVegan: true,
       isGF: true
     }
-  ];
+];
 
-  const filteredItems = menuItems.filter(item => {
+export default function MenuSection({ defaultBranch = 'gueliz' }: MenuSectionProps) {
+  const [lang, setLang] = useState<'EN' | 'FR'>('EN');
+  const [selectedBranch, setSelectedBranch] = useState<'gueliz' | 'medina' | 'casablanca'>(defaultBranch);
+  const [activeTab, setActiveTab] = useState("starters");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterVeg, setFilterVeg] = useState(false);
+  const [filterSpicy, setFilterSpicy] = useState(false);
+  const [showMenuScanModal, setShowMenuScanModal] = useState(false);
+  const [scanBranch, setScanBranch] = useState<'medina' | 'casablanca'>('medina');
+  const [currentScanPage, setCurrentScanPage] = useState(1);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleLangChange = (e: Event) => {
+      const customEvent = e as CustomEvent<'EN' | 'FR'>;
+      setLang(customEvent.detail);
+    };
+    window.addEventListener('langChange', handleLangChange);
+    return () => window.removeEventListener('langChange', handleLangChange);
+  }, []);
+
+  // Escape-to-close + focus trap for the menu scan modal
+  useEffect(() => {
+    if (!showMenuScanModal) return;
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowMenuScanModal(false);
+        return;
+      }
+
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusables = modalRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showMenuScanModal]);
+
+  const categories = CATEGORIES;
+  const menuItems = MENU_ITEMS;
+
+  const filteredItems = useMemo(() => menuItems.filter(item => {
     if (activeTab !== item.category) return false;
     if (selectedBranch !== 'casablanca' && item.locationExclusive === 'casablanca') return false;
     if (selectedBranch === 'casablanca' && item.locationExclusive === 'marrakech') return false;
@@ -916,7 +958,7 @@ export default function MenuSection({ defaultBranch = 'gueliz' }: MenuSectionPro
     if (filterSpicy && !item.isSpicy) return false;
 
     return true;
-  });
+  }), [menuItems, activeTab, selectedBranch, searchQuery, filterVeg, filterSpicy]);
 
   const getDisplayPrice = (item: MenuItem) => {
     if (selectedBranch === 'casablanca') {
@@ -925,6 +967,16 @@ export default function MenuSection({ defaultBranch = 'gueliz' }: MenuSectionPro
     // Gueliz and Medina share Marrakech pricing
     return `${item.price.marrakech} Dhs`;
   };
+
+  // Combine all visible items' JSON-LD into a single script tag instead of
+  // one <script> per item — same SEO signal, far fewer DOM nodes.
+  const menuItemsJsonLd = useMemo(
+    () =>
+      filteredItems.map((item) =>
+        generateMenuItemSchema(item, selectedBranch === 'casablanca' ? 'casablanca' : 'marrakech', lang)
+      ),
+    [filteredItems, selectedBranch, lang]
+  );
 
   return (
     <div className="menu-container max-w-6xl mx-auto px-4">
@@ -1022,18 +1074,13 @@ export default function MenuSection({ defaultBranch = 'gueliz' }: MenuSectionPro
       </div>
 
       {/* Dish Items Grid */}
-            <div className="menu-items-grid">
-              {filteredItems.map((item) => (
-                <>
-                  <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{
-                      __html: JSON.stringify(
-                        generateMenuItemSchema(item, selectedBranch === 'casablanca' ? 'casablanca' : 'marrakech', lang)
-                      ),
-                    }}
-                  />
-                  <article key={item.id} className="menu-item-card bg-black/60 p-6 rounded-2xl border border-white/10 transition-all duration-300 hover:border-gold/60 hover:bg-black/80 hover:shadow-2xl group">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(menuItemsJsonLd) }}
+      />
+      <div className="menu-items-grid">
+        {filteredItems.map((item) => (
+          <article key={item.id} className="menu-item-card bg-black/60 p-6 rounded-2xl border border-white/10 transition-all duration-300 hover:border-gold/60 hover:bg-black/80 hover:shadow-2xl group">
             {item.imageUrl ? (
               <div className="menu-item-image rounded-xl overflow-hidden border border-white/10 bg-black/40 relative">
                 <Image
@@ -1079,17 +1126,26 @@ export default function MenuSection({ defaultBranch = 'gueliz' }: MenuSectionPro
                 )}
               </div>
             </div>
-                      </article>
-                    </>
-                  ))}
-                  </div>
+          </article>
+        ))}
+      </div>
 
       {/* Official Scanned Menu Modal */}
       {showMenuScanModal && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-black p-6 rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col border border-gold/40 shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+          onClick={() => setShowMenuScanModal(false)}
+        >
+          <div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="menu-scan-modal-title"
+            className="bg-black p-6 rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col border border-gold/40 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-              <h3 className="font-serif text-xl font-bold text-gold uppercase tracking-wider">
+              <h3 id="menu-scan-modal-title" className="font-serif text-xl font-bold text-gold uppercase tracking-wider">
                 Official Scanned Menu Pages (2023)
               </h3>
               <div className="flex items-center gap-3">
@@ -1102,13 +1158,16 @@ export default function MenuSection({ defaultBranch = 'gueliz' }: MenuSectionPro
                   Download PDF
                 </a>
                 <button
+                  ref={closeButtonRef}
                   onClick={() => setShowMenuScanModal(false)}
+                  aria-label="Close menu preview"
                   className="text-white hover:text-gold text-2xl px-2"
                 >
                   ✕
                 </button>
               </div>
             </div>
+
 
             <div className="flex items-center justify-center gap-2 mb-4">
               <button
