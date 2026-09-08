@@ -8,16 +8,16 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 const chefSchema = {
   '@context': 'https://schema.org',
   '@type': 'ProfilePage',
-  url: 'https://www.bombaydar.com/chef',
+  url: 'https://www.bombaymaroc.com/chef',
   mainEntity: {
     '@type': 'Person',
     name: 'Chef Surender Kumar Thakur',
     jobTitle: 'Owner & Head Chef',
-    image: 'https://www.bombaydar.com/images/web/chef_surender_solo_portrait.jpg',
+    image: 'https://www.bombaymaroc.com/images/web/chef_surender_solo_portrait.jpg',
     worksFor: {
       '@type': 'Organization',
       name: 'Bombay Restaurant',
-      url: 'https://www.bombaydar.com',
+      url: 'https://www.bombaymaroc.com',
     },
     knowsAbout: ['North Indian Cuisine', 'Punjabi Cuisine', 'Tandoor Cooking', 'Clay-Pot Biryani', 'Mughlai Cuisine'],
     description:
@@ -41,6 +41,7 @@ export default function ChefClient({ locale }: ChefClientProps) {
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] || locale;
   const locationsHref = `/${currentLocale}/locations`;
+  const isFr = currentLocale === 'fr';
 
   return (
     <div className="location-page-wrapper">
@@ -51,11 +52,13 @@ export default function ChefClient({ locale }: ChefClientProps) {
 
       <section className="relative pt-32 pb-10 bg-black/40">
         <div className="container mx-auto px-4">
-          <Breadcrumbs items={[{ name: "Our Chef", url: `/${currentLocale}/chef` }]} />
-          <span className="text-xs uppercase tracking-widest text-gold font-bold block mt-6 mb-2">The Man Behind The Fire</span>
+          <Breadcrumbs items={[{ name: isFr ? "Notre Chef" : "Our Chef", url: `/${currentLocale}/chef` }]} />
+          <span className="text-xs uppercase tracking-widest text-gold font-bold block mt-6 mb-2">{isFr ? "L'Homme Derrière le Feu" : "The Man Behind The Fire"}</span>
           <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-3">Chef Surender Kumar Thakur</h1>
           <p className="text-lg text-sand max-w-2xl font-sans font-light">
-            Owner & Head Chef · Oberoi-trained · Bringing authentic North Indian cuisine to Morocco since 2004.
+            {isFr
+              ? "Propriétaire & Chef · Formé à l'Oberoi · Apporte la cuisine nord-indienne authentique au Maroc depuis 2004."
+              : "Owner & Head Chef · Oberoi-trained · Bringing authentic North Indian cuisine to Morocco since 2004."}
           </p>
         </div>
       </section>

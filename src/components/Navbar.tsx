@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [lang, setLang] = useState<'EN' | 'FR'>('EN');
   const pathname = usePathname();
+  const router = useRouter();
+  const locale = pathname.split('/')[1] === 'fr' ? 'fr' : 'en';
+  const [lang, setLang] = useState<'EN' | 'FR'>(locale === 'fr' ? 'FR' : 'EN');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,32 +23,43 @@ export default function Navbar() {
       }
     };
     window.addEventListener('scroll', handleScroll);
-    
+
     const handleLangChange = (e: Event) => {
       const customEvent = e as CustomEvent<'EN' | 'FR'>;
       setLang(customEvent.detail);
     };
     window.addEventListener('langChange', handleLangChange);
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('langChange', handleLangChange);
     };
   }, []);
 
+  // Keep the toggle in sync with the actual URL locale (e.g. after
+  // navigating directly to /fr/... or using browser back/forward) without
+  // triggering a synchronous setState-in-effect lint violation.
+  const derivedLang = locale === 'fr' ? 'FR' : 'EN';
+  if (lang !== derivedLang) {
+    setLang(derivedLang);
+  }
+
   const toggleLang = () => {
-    const newLang = lang === 'EN' ? 'FR' : 'EN';
-    setLang(newLang);
-    window.dispatchEvent(new CustomEvent('langChange', { detail: newLang }));
+    const nextLocale = locale === 'fr' ? 'en' : 'fr';
+    const segments = pathname.split('/');
+    segments[1] = nextLocale;
+    const nextPath = segments.join('/') || `/${nextLocale}`;
+    window.dispatchEvent(new CustomEvent('langChange', { detail: nextLocale === 'fr' ? 'FR' : 'EN' }));
+    router.push(nextPath);
   };
 
   const navLinks = [
-    { href: '/', label: { EN: 'Home', FR: 'Accueil' } },
-    { href: '/menu', label: { EN: 'Menu', FR: 'Carte' } },
-    { href: '/about', label: { EN: 'Brand Story', FR: 'Notre Histoire' } },
-    { href: '/locations/gueliz', label: { EN: 'Bombay Marrakech', FR: 'Bombay Marrakech' } },
-    { href: '/locations/medina', label: { EN: 'Medina Rooftop', FR: 'Médina Rooftop' } },
-    { href: '/locations/casablanca', label: { EN: 'Casablanca', FR: 'Casablanca' } },
+    { href: `/${locale}`, label: { EN: 'Home', FR: 'Accueil' } },
+    { href: `/${locale}/menu`, label: { EN: 'Menu', FR: 'Carte' } },
+    { href: `/${locale}/about`, label: { EN: 'Brand Story', FR: 'Notre Histoire' } },
+    { href: `/${locale}/locations/gueliz`, label: { EN: 'Bombay Marrakech', FR: 'Bombay Marrakech' } },
+    { href: `/${locale}/locations/medina`, label: { EN: 'Medina Rooftop', FR: 'Médina Rooftop' } },
+    { href: `/${locale}/locations/casablanca`, label: { EN: 'Casablanca', FR: 'Casablanca' } },
   ];
 
   const handleLinkClick = () => {
@@ -56,7 +69,7 @@ export default function Navbar() {
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="nav-container">
-        <Link href="/" className="nav-logo" onClick={handleLinkClick}>
+        <Link href={`/${locale}`} className="nav-logo" onClick={handleLinkClick}>
           <Logo size={44} />
           <div className="logo-text-wrapper">
             <span className="logo-title font-serif gold-text">BOMBAY RESTAURANT</span>
@@ -117,7 +130,7 @@ export default function Navbar() {
             <ThemeToggle />
 
             <Link
-              href="#reserve" 
+              href={`/${locale}#reserve`}
               className="btn-primary nav-book-btn"
               onClick={handleLinkClick}
             >
@@ -129,7 +142,7 @@ export default function Navbar() {
     
       {/* Mobile Floating Sticky CTA Bar */}
       <div className="mobile-sticky-bar">
-        <Link href="#reserve" className="mobile-sticky-btn mobile-btn-book" onClick={handleLinkClick}>
+        <Link href={`/${locale}#reserve`} className="mobile-sticky-btn mobile-btn-book" onClick={handleLinkClick}>
            {lang === 'EN' ? 'Book Table' : 'Réserver'}
         </Link>
         <a 

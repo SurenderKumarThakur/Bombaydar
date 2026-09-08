@@ -10,8 +10,8 @@ Disallow: /static/
 Disallow: /private/
 
 # Host
-Host: https://www.bombaydar.com
+Host: https://www.bombaymaroc.com
 
 # Sitemaps
-Sitemap: https://www.bombaydar.com/sitemap.xml
-Sitemap: https://www.bombaydar.com/sitemap-images.xml
+Sitemap: https://www.bombaymaroc.com/sitemap.xml
+Sitemap: https://www.bombaymaroc.com/sitemap-images.xml

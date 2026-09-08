@@ -25,7 +25,7 @@ export async function generateMetadata({
     openGraph: {
       title: post.title,
       description: post.description,
-      url: `https://www.bombaydar.com/${locale}/blog/${post.slug}`,
+      url: `https://www.bombaymaroc.com/${locale}/blog/${post.slug}`,
       siteName: "Bombay Restaurant",
       locale: isFr ? "fr_FR" : "en_US",
       type: "article",
@@ -39,11 +39,11 @@ export async function generateMetadata({
       images: [post.image],
     },
     alternates: {
-      canonical: `https://www.bombaydar.com/${locale}/blog/${post.slug}`,
+      canonical: `https://www.bombaymaroc.com/${locale}/blog/${post.slug}`,
       languages: {
-        en: `https://www.bombaydar.com/en/blog/${post.slug}`,
-        fr: `https://www.bombaydar.com/fr/blog/${post.slug}`,
-        "x-default": `https://www.bombaydar.com/en/blog/${post.slug}`,
+        en: `https://www.bombaymaroc.com/en/blog/${post.slug}`,
+        fr: `https://www.bombaymaroc.com/fr/blog/${post.slug}`,
+        "x-default": `https://www.bombaymaroc.com/en/blog/${post.slug}`,
       },
     },
   };
@@ -70,21 +70,21 @@ export default async function BlogPostPage({
             '@type': 'BlogPosting',
             headline: post.title,
             description: post.description,
-            image: `https://www.bombaydar.com${post.image}`,
+            image: `https://www.bombaymaroc.com${post.image}`,
             datePublished: post.date,
             dateModified: post.date,
             author: {
               '@type': 'Person',
               name: 'Chef Surender Kumar Thakur',
               jobTitle: 'Owner & Head Chef',
-              worksFor: { '@type': 'Organization', name: 'Bombay Restaurant', url: 'https://www.bombaydar.com' },
+              worksFor: { '@type': 'Organization', name: 'Bombay Restaurant', url: 'https://www.bombaymaroc.com' },
             },
             publisher: {
               '@type': 'Organization',
               name: 'Bombay Restaurant Morocco',
-              url: 'https://www.bombaydar.com',
+              url: 'https://www.bombaymaroc.com',
             },
-            mainEntityOfPage: `https://www.bombaydar.com/${locale}/blog/${post.slug}`,
+            mainEntityOfPage: `https://www.bombaymaroc.com/${locale}/blog/${post.slug}`,
           }),
         }}
       />

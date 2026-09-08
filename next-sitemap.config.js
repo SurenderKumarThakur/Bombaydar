@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: 'https://www.bombaydar.com',
+  siteUrl: 'https://www.bombaymaroc.com',
   generateRobotsTxt: true,
   generateIndexSitemap: true,
   exclude: ['/server-sitemap.xml'],
@@ -9,9 +9,15 @@ module.exports = {
       { userAgent: '*', allow: '/' },
       { userAgent: '*', disallow: ['/api/', '/_next/', '/static/', '/private/'] },
     ],
-    additionalSitemaps: ['https://www.bombaydar.com/sitemap-images.xml'],
+    additionalSitemaps: ['https://www.bombaymaroc.com/sitemap-images.xml'],
   },
   transform: async (config, path) => {
+    // Paths are now locale-prefixed (/en/menu, /fr/menu, etc.) after the
+    // /en/ + /fr/ subdirectory restructure — map against the un-prefixed
+    // tail so both locales get correct priority/changefreq.
+    const stripLocale = (p) => p.replace(/^\/(en|fr)(\/|$)/, '/');
+    const bare = stripLocale(path);
+
     const priorityMap = {
       '/': 1.0,
       '/menu': 0.9,
@@ -37,8 +43,8 @@ module.exports = {
     };
     return {
       loc: path,
-      changefreq: changefreqMap[path] || 'monthly',
-      priority: priorityMap[path] || 0.6,
+      changefreq: changefreqMap[bare] || 'monthly',
+      priority: priorityMap[bare] || 0.6,
       lastmod: new Date().toISOString(),
     };
   },

@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import Logo from '@/components/Logo';
 
 export default function Footer() {
   const [lang, setLang] = useState<'EN' | 'FR'>('EN');
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] === 'fr' ? 'fr' : 'en';
 
   useEffect(() => {
     const handleLangChange = (e: Event) => {
@@ -44,7 +47,7 @@ export default function Footer() {
       <div className="container footer-grid">
         {/* Brand Info */}
         <div className="footer-brand">
-          <Link href="/" className="footer-logo">
+          <Link href={`/${locale}`} className="footer-logo">
             <Logo size={54} />
             <div className="logo-text-wrapper">
               <span className="logo-title font-serif gold-text">BOMBAY RESTAURANT</span>
@@ -66,13 +69,13 @@ export default function Footer() {
         <div className="footer-column">
           <h4 className="footer-title">{content.quickLinks[lang]}</h4>
           <ul className="footer-links">
-            <li><Link href="/">{lang === 'EN' ? 'Home' : 'Accueil'}</Link></li>
-            <li><Link href="/menu">{lang === 'EN' ? 'Menu' : 'Carte'}</Link></li>
-            <li><Link href="/about">{lang === 'EN' ? 'Brand Story' : 'Notre Histoire'}</Link></li>
-            <li><Link href="/chef">{lang === 'EN' ? 'Our Chef' : 'Notre Chef'}</Link></li>
-            <li><Link href="/catering">{lang === 'EN' ? 'Catering & Events' : 'Traiteur & Réceptions'}</Link></li>
-            <li><Link href="/gallery">{lang === 'EN' ? 'Gallery' : 'Galerie'}</Link></li>
-            <li><Link href="/blog">{lang === 'EN' ? 'Journal' : 'Journal'}</Link></li>
+            <li><Link href={`/${locale}`}>{lang === 'EN' ? 'Home' : 'Accueil'}</Link></li>
+            <li><Link href={`/${locale}/menu`}>{lang === 'EN' ? 'Menu' : 'Carte'}</Link></li>
+            <li><Link href={`/${locale}/about`}>{lang === 'EN' ? 'Brand Story' : 'Notre Histoire'}</Link></li>
+            <li><Link href={`/${locale}/chef`}>{lang === 'EN' ? 'Our Chef' : 'Notre Chef'}</Link></li>
+            <li><Link href={`/${locale}/catering`}>{lang === 'EN' ? 'Catering & Events' : 'Traiteur & Réceptions'}</Link></li>
+            <li><Link href={`/${locale}/gallery`}>{lang === 'EN' ? 'Gallery' : 'Galerie'}</Link></li>
+            <li><Link href={`/${locale}/blog`}>{lang === 'EN' ? 'Journal' : 'Journal'}</Link></li>
           </ul>
         </div>
 

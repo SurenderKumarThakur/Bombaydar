@@ -1,7 +1,7 @@
 import { readdirSync, writeFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const SITE = 'https://www.bombaydar.com';
+const SITE = 'https://www.bombaymaroc.com';
 const PUBLIC_DIR = join(process.cwd(), 'public');
 const OUT = join(PUBLIC_DIR, 'sitemap-images.xml');
 const EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif']);
@@ -20,15 +20,18 @@ function walk(dir) {
   return out;
 }
 
-// Map file paths to the page most relevant for that image
+// Map file paths to the page most relevant for that image. Paths are
+// locale-prefixed (/en/...) since the site is now split into /en/ + /fr/
+// subdirectories — images are associated with the English route by
+// default; add the French equivalents below.
 function pageFor(relPath) {
-  if (/menu_pdf|food_/i.test(relPath)) return '/menu';
-  if (/chef_/i.test(relPath)) return '/chef';
-  if (/hero_medina/i.test(relPath)) return '/locations/medina';
-  if (/hero_casablanca/i.test(relPath)) return '/locations/casablanca';
-  if (/hero_royal_lounge/i.test(relPath)) return '/locations/gueliz';
-  if (/ambiance_luxury_table/i.test(relPath)) return '/catering';
-  return '/gallery';
+  if (/menu_pdf|food_/i.test(relPath)) return '/en/menu';
+  if (/chef_/i.test(relPath)) return '/en/chef';
+  if (/hero_medina/i.test(relPath)) return '/en/locations/medina';
+  if (/hero_casablanca/i.test(relPath)) return '/en/locations/casablanca';
+  if (/hero_royal_lounge/i.test(relPath)) return '/en/locations/gueliz';
+  if (/ambiance_luxury_table/i.test(relPath)) return '/en/catering';
+  return '/en/gallery';
 }
 
 const files = walk(join(PUBLIC_DIR, 'images'));

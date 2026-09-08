@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: isFr
         ? "L'héritage de 20 ans du Chef Surender Kumar Thakur. Biryani en pot d'argile, grillades tandoor & terrasses sur le toit à Marrakech & Casablanca."
         : "Experience Chef Surender Kumar Thakur's 20-year legacy. Clay-pot biryani, tandoor grills & rooftop dining in Marrakech & Casablanca.",
-      url: `https://www.bombaydar.com/${locale}`,
+      url: `https://www.bombaymaroc.com/${locale}`,
       siteName: "Bombay Restaurant",
       locale: isFr ? "fr_FR" : "en_US",
       type: "website",
@@ -53,11 +53,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       creator: "@bombay_marrakech",
     },
     alternates: {
-      canonical: `https://www.bombaydar.com/${locale}`,
+      canonical: `https://www.bombaymaroc.com/${locale}`,
       languages: {
-        en: "https://www.bombaydar.com/en",
-        fr: "https://www.bombaydar.com/fr",
-        "x-default": "https://www.bombaydar.com/en",
+        en: "https://www.bombaymaroc.com/en",
+        fr: "https://www.bombaymaroc.com/fr",
+        "x-default": "https://www.bombaymaroc.com/en",
       },
     },
   };
