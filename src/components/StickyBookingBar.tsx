@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function StickyBookingBar() {
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] === 'fr' ? 'fr' : 'en';
   const [visible, setVisible] = useState(false);
-  const [lang, setLang] = useState<'EN' | 'FR'>('EN');
+  const [lang, setLang] = useState<'EN' | 'FR'>(locale === 'fr' ? 'FR' : 'EN');
 
   useEffect(() => {
     const handleLangChange = (e: Event) => {

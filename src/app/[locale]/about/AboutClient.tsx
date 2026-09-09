@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import BookingWidget from '@/components/BookingWidget';
 import SchemaScript from '@/components/SchemaScript';
@@ -40,7 +41,9 @@ function CountUpStat({ value, suffix = '', en, fr, lang }: { value: number; suff
 }
 
 export default function AboutClient() {
-  const [lang, setLang] = useState<'EN' | 'FR'>('EN');
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] === 'fr' ? 'fr' : 'en';
+  const [lang, setLang] = useState<'EN' | 'FR'>(locale === 'fr' ? 'FR' : 'EN');
 
   useEffect(() => {
     const handleLangChange = (e: Event) => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import MenuSection from '@/components/MenuSection';
 import BookingWidget from '@/components/BookingWidget';
@@ -9,7 +10,9 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import { casablancaSchema, casablancaFaq, generateMenuSchema } from '@/lib/schema';
 
 export default function CasablancaClient() {
-  const [lang, setLang] = useState<'EN' | 'FR'>('EN');
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] === 'fr' ? 'fr' : 'en';
+  const [lang, setLang] = useState<'EN' | 'FR'>(locale === 'fr' ? 'FR' : 'EN');
   const [slideIndex, setSlideIndex] = useState(0);
 
   const heroSlides = [
@@ -45,13 +48,18 @@ export default function CasablancaClient() {
     },
     hoursTitle: { EN: "Opening Hours", FR: "Horaires d'Ouverture" },
     contactTitle: { EN: "Contact & Address", FR: "Contact & Adresse" },
-    highlightsTitle: { EN: "Branch Highlights", FR: "Points Forts du Restaurant" },
-    highlight1: { EN: "Upscale Modern Dining", FR: "Lounge Moderne et Chic" },
-    highlight1Desc: { EN: "Intimate contemporary layouts paired with warm luxury accent lights.", FR: "Des agencements intimes et contemporains associés à des lumières chaleureuses." },
-    highlight2: { EN: "Full Indian Menu", FR: "Carte Indienne Complète" },
-    highlight2Desc: { EN: "Includes authentic chicken curries, tandoori meats, and Indo-Chinese favorites.", FR: "Comprend des currys authentiques, des grillades tandoori et des classiques indo-chinois." },
-    highlight3: { EN: "Card Payments Accepted", FR: "Paiement par Carte" },
-    highlight3Desc: { EN: "Unlike Marrakech, card payments are fully supported here.", FR: "Contrairement à Marrakech, les paiements par carte sont acceptés ici." }
+    badge: { EN: "Bombay Casablanca • Maârif", FR: "Bombay Casablanca • Maârif" },
+    breadcrumbLocations: { EN: "Locations", FR: "Nos Adresses" },
+    breadcrumbSelf: { EN: "Casablanca", FR: "Casablanca" },
+    hoursRowLabel: { EN: "Open Daily:", FR: "Ouvert Tous les Jours :" },
+    addressLabel: { EN: "Address:", FR: "Adresse :" },
+    phoneLabel: { EN: "Phone:", FR: "Téléphone :" },
+    directions: { EN: "Get Directions →", FR: "Itinéraire →" },
+    paymentTitle: { EN: "Payment Info", FR: "Modes de Paiement" },
+    paymentDesc: { EN: "Cards and Cash (MAD, EUR, USD) are accepted at our Casablanca branch.", FR: "Cartes et espèces (MAD, EUR, USD) acceptées dans notre adresse de Casablanca." },
+    narrativeTitle: { EN: "Atlantic Coastal Elegance", FR: "Élégance Côtière Atlantique" },
+    dineWithUs: { EN: "Dine With Us", FR: "Dînez Avec Nous" },
+    menuTitle: { EN: "The Casablanca Menu", FR: "Le Menu Casablanca" },
   };
 
   return (
@@ -82,7 +90,7 @@ export default function CasablancaClient() {
         <div className="absolute inset-0 bg-black/60 z-20" />
         <div className="relative z-30 container mx-auto px-4 text-center text-white reveal-on-scroll up">
           <span className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-gold/20 text-gold border border-gold/40 mb-4 inline-block reveal-on-scroll left delay-1">
-            Bombay Casablanca • Maârif
+            {copy.badge[lang]}
           </span>
           <h1 className="font-serif text-4xl md:text-6xl font-bold text-white mb-3 reveal-on-scroll right delay-2">
             {copy.title[lang]}
@@ -95,13 +103,13 @@ export default function CasablancaClient() {
 
       {/* Details section */}
       <section className="location-info-section container mx-auto px-4 py-16 section-reveal" aria-labelledby="details-title">
-        <Breadcrumbs items={[{ name: "Locations", url: "/locations" }, { name: "Casablanca", url: "/locations/casablanca" }]} />
+        <Breadcrumbs items={[{ name: copy.breadcrumbLocations[lang], url: `/${locale}/locations` }, { name: copy.breadcrumbSelf[lang], url: `/${locale}/locations/casablanca` }]} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 mt-6">
           <article className="bg-black/40 p-6 rounded-2xl border border-white/10 backdrop-blur-md reveal-on-scroll up">
             <h3 className="font-serif text-xl font-bold text-gold mb-3">{copy.hoursTitle[lang]}</h3>
             <ul className="text-sm text-sand space-y-2">
               <li className="flex justify-between border-b border-white/10 pb-2">
-                <span>Open Daily:</span>
+                <span>{copy.hoursRowLabel[lang]}</span>
                 <span className="font-bold text-white">12:00 - 23:30</span>
               </li>
             </ul>
@@ -111,12 +119,12 @@ export default function CasablancaClient() {
             <h3 className="font-serif text-xl font-bold text-gold mb-3">{copy.contactTitle[lang]}</h3>
             <ul className="text-sm text-sand space-y-2">
               <li>
-                <strong className="text-white block">Address:</strong>
+                <strong className="text-white block">{copy.addressLabel[lang]}</strong>
                 <span>Boulevard Ghandi, Maârif, Casablanca</span>
               </li>
               <li className="pt-2">
-                <strong className="text-white block">Phone:</strong>
-                <a href="tel:+212613727362" className="text-gold font-bold hover:underline">+212 613-727362</a>
+                <strong className="text-white block">{copy.phoneLabel[lang]}</strong>
+                <a href="tel:+212****7362" className="text-gold font-bold hover:underline">+212 613-727362</a>
               </li>
               <li className="pt-2">
                 <a
@@ -125,23 +133,23 @@ export default function CasablancaClient() {
                   rel="noopener noreferrer"
                   className="btn-secondary text-xs"
                 >
-                  Get Directions →
+                  {copy.directions[lang]}
                 </a>
               </li>
             </ul>
           </article>
 
           <article className="bg-black/40 p-6 rounded-2xl border border-white/10 backdrop-blur-md reveal-on-scroll up delay-2">
-            <h3 className="font-serif text-xl font-bold text-gold mb-3">Payment Info</h3>
+            <h3 className="font-serif text-xl font-bold text-gold mb-3">{copy.paymentTitle[lang]}</h3>
             <p className="text-sm text-sand leading-relaxed">
-              Cards and Cash (MAD, EUR, USD) are accepted at our Casablanca branch.
+              {copy.paymentDesc[lang]}
             </p>
           </article>
         </div>
 
         {/* Narrative */}
         <article className="bg-black/50 p-8 md:p-12 rounded-3xl border border-gold/20 mb-16 backdrop-blur-md max-w-4xl mx-auto text-center reveal-on-scroll up">
-          <h2 className="font-serif text-3xl font-bold text-gold mb-4">Atlantic Coastal Elegance</h2>
+          <h2 className="font-serif text-3xl font-bold text-gold mb-4">{copy.narrativeTitle[lang]}</h2>
           <div className="w-16 h-0.5 bg-gold mx-auto mb-6" />
           <p className="text-base text-sand leading-relaxed font-sans font-light">
             {copy.tagline[lang]}
@@ -153,8 +161,8 @@ export default function CasablancaClient() {
       <section className="py-12 bg-black/30 section-reveal" id="menu" aria-labelledby="menu-title">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10 reveal-on-scroll up">
-            <span className="text-xs uppercase tracking-widest text-gold font-bold block mb-2">Dine With Us</span>
-            <h2 id="menu-title" className="font-serif text-3xl md:text-4xl font-bold text-white">The Casablanca Menu</h2>
+            <span className="text-xs uppercase tracking-widest text-gold font-bold block mb-2">{copy.dineWithUs[lang]}</span>
+            <h2 id="menu-title" className="font-serif text-3xl md:text-4xl font-bold text-white">{copy.menuTitle[lang]}</h2>
             <div className="w-16 h-0.5 bg-gold mx-auto mt-4" />
           </div>
           <MenuSection defaultBranch="casablanca" />

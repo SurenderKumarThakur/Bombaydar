@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { breadcrumbSchema } from '@/lib/schema';
 
 interface Crumb {
@@ -7,7 +10,23 @@ interface Crumb {
 }
 
 export default function Breadcrumbs({ items }: { items: Crumb[] }) {
-  const all = [{ name: 'Home', url: '/' }, ...items];
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] === 'fr' ? 'fr' : 'en';
+  const isFr = locale === 'fr';
+
+  // Prefix any relative crumb URL with the current locale; absolute URLs
+  // (http/https) pass through unchanged.
+  const withLocale = (url: string) => {
+    if (/^https?:\/\//.test(url)) return url;
+    if (url.startsWith(`/${locale}`)) return url;
+    return `/${locale}${url === '/' ? '' : url}`;
+  };
+
+  const all = [
+    { name: isFr ? 'Accueil' : 'Home', url: `/${locale}` },
+    ...items.map((item) => ({ name: item.name, url: withLocale(item.url) })),
+  ];
+
   return (
     <>
       <script

@@ -6,9 +6,9 @@ import { usePathname } from 'next/navigation';
 import Logo from '@/components/Logo';
 
 export default function Footer() {
-  const [lang, setLang] = useState<'EN' | 'FR'>('EN');
   const pathname = usePathname();
   const locale = pathname.split('/')[1] === 'fr' ? 'fr' : 'en';
+  const [lang, setLang] = useState<'EN' | 'FR'>(locale === 'fr' ? 'FR' : 'EN');
 
   useEffect(() => {
     const handleLangChange = (e: Event) => {

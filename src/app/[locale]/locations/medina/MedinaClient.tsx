@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import MenuSection from '@/components/MenuSection';
 import BookingWidget from '@/components/BookingWidget';
@@ -9,7 +10,9 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import { medinaSchema, medinaFaq, generateMenuSchema } from '@/lib/schema';
 
 export default function MedinaClient() {
-  const [lang, setLang] = useState<'EN' | 'FR'>('EN');
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] === 'fr' ? 'fr' : 'en';
+  const [lang, setLang] = useState<'EN' | 'FR'>(locale === 'fr' ? 'FR' : 'EN');
   const [slideIndex, setSlideIndex] = useState(0);
 
   const heroSlides = [
@@ -45,6 +48,18 @@ export default function MedinaClient() {
     },
     hoursTitle: { EN: "Opening Hours", FR: "Horaires d'Ouverture" },
     contactTitle: { EN: "Contact & Address", FR: "Contact & Adresse" },
+    badge: { EN: "Medina Rooftop • Near Jemaa el-Fnaa", FR: "Médina Rooftop • Près de Jemaa el-Fnaa" },
+    breadcrumbLocations: { EN: "Locations", FR: "Nos Adresses" },
+    breadcrumbSelf: { EN: "Medina Rooftop", FR: "Médina Rooftop" },
+    hoursRowLabel: { EN: "Daily Sunset & Dinner:", FR: "Coucher du Soleil & Dîner :" },
+    addressLabel: { EN: "Address:", FR: "Adresse :" },
+    phoneLabel: { EN: "Central Phone:", FR: "Téléphone Central :" },
+    directions: { EN: "Get Directions →", FR: "Itinéraire →" },
+    paymentTitle: { EN: "Payment Info", FR: "Modes de Paiement" },
+    paymentDesc: { EN: "Marrakech Medina branch accepts Cash payments (MAD, EUR, USD).", FR: "Notre adresse de la Médina accepte les paiements en espèces (MAD, EUR, USD)." },
+    narrativeTitle: { EN: "Royal Mughlai Above the Red City", FR: "Cuisine Moghlai Royale au-Dessus de la Ville Rouge" },
+    menuBadge: { EN: "Medina Rooftop Specialties", FR: "Spécialités du Médina Rooftop" },
+    menuTitle: { EN: "The Medina Menu", FR: "Le Menu Médina" },
   };
 
   return (
@@ -75,7 +90,7 @@ export default function MedinaClient() {
         <div className="absolute inset-0 bg-black/60 z-20" />
         <div className="relative z-30 container mx-auto px-4 text-center text-white reveal-on-scroll up">
           <span className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-gold/20 text-gold border border-gold/40 mb-4 inline-block reveal-on-scroll left delay-1">
-            Medina Rooftop • Near Jemaa el-Fnaa
+            {copy.badge[lang]}
           </span>
           <h1 className="font-serif text-4xl md:text-6xl font-bold text-white mb-3 reveal-on-scroll right delay-2">
             {copy.title[lang]}
@@ -88,13 +103,13 @@ export default function MedinaClient() {
 
       {/* Details section */}
       <section className="location-info-section container mx-auto px-4 py-16 section-reveal" aria-labelledby="details-title">
-        <Breadcrumbs items={[{ name: "Locations", url: "/locations" }, { name: "Medina Rooftop", url: "/locations/medina" }]} />
+        <Breadcrumbs items={[{ name: copy.breadcrumbLocations[lang], url: `/${locale}/locations` }, { name: copy.breadcrumbSelf[lang], url: `/${locale}/locations/medina` }]} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 mt-6">
           <article className="bg-black/40 p-6 rounded-2xl border border-white/10 backdrop-blur-md reveal-on-scroll up">
             <h3 className="font-serif text-xl font-bold text-gold mb-3">{copy.hoursTitle[lang]}</h3>
             <ul className="text-sm text-sand space-y-2">
               <li className="flex justify-between border-b border-white/10 pb-2">
-                <span>Daily Sunset & Dinner:</span>
+                <span>{copy.hoursRowLabel[lang]}</span>
                 <span className="font-bold text-white">12:30 - 23:30</span>
               </li>
             </ul>
@@ -104,12 +119,12 @@ export default function MedinaClient() {
             <h3 className="font-serif text-xl font-bold text-gold mb-3">{copy.contactTitle[lang]}</h3>
             <ul className="text-sm text-sand space-y-2">
               <li>
-                <strong className="text-white block">Address:</strong>
+                <strong className="text-white block">{copy.addressLabel[lang]}</strong>
                 <span>Derb Dabachi, Marrakech Medina (Near Jemaa el-Fnaa)</span>
               </li>
               <li className="pt-2">
-                <strong className="text-white block">Central Phone:</strong>
-                <a href="tel:+212613727362" className="text-gold font-bold hover:underline">+212 613-727362</a>
+                <strong className="text-white block">{copy.phoneLabel[lang]}</strong>
+                <a href="tel:+212****7362" className="text-gold font-bold hover:underline">+212 613-727362</a>
               </li>
               <li className="pt-2">
                 <a
@@ -118,23 +133,23 @@ export default function MedinaClient() {
                   rel="noopener noreferrer"
                   className="btn-secondary text-xs"
                 >
-                  Get Directions →
+                  {copy.directions[lang]}
                 </a>
               </li>
             </ul>
           </article>
 
           <article className="bg-black/40 p-6 rounded-2xl border border-white/10 backdrop-blur-md reveal-on-scroll up delay-2">
-            <h3 className="font-serif text-xl font-bold text-gold mb-3">Payment Info</h3>
+            <h3 className="font-serif text-xl font-bold text-gold mb-3">{copy.paymentTitle[lang]}</h3>
             <p className="text-sm text-sand leading-relaxed">
-              Marrakech Medina branch accepts Cash payments (MAD, EUR, USD).
+              {copy.paymentDesc[lang]}
             </p>
           </article>
         </div>
 
         {/* Narrative */}
         <article className="bg-black/50 p-8 md:p-12 rounded-3xl border border-gold/20 mb-16 backdrop-blur-md max-w-4xl mx-auto text-center reveal-on-scroll up">
-          <h2 className="font-serif text-3xl font-bold text-gold mb-4">Royal Mughlai Above the Red City</h2>
+          <h2 className="font-serif text-3xl font-bold text-gold mb-4">{copy.narrativeTitle[lang]}</h2>
           <div className="w-16 h-0.5 bg-gold mx-auto mb-6" />
           <p className="text-base text-sand leading-relaxed font-sans font-light">
             {copy.tagline[lang]}
@@ -146,8 +161,8 @@ export default function MedinaClient() {
       <section className="py-12 bg-black/30 section-reveal" id="menu" aria-labelledby="menu-title">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10 reveal-on-scroll up">
-            <span className="text-xs uppercase tracking-widest text-gold font-bold block mb-2">Medina Rooftop Specialties</span>
-            <h2 id="menu-title" className="font-serif text-3xl md:text-4xl font-bold text-white">The Medina Menu</h2>
+            <span className="text-xs uppercase tracking-widest text-gold font-bold block mb-2">{copy.menuBadge[lang]}</span>
+            <h2 id="menu-title" className="font-serif text-3xl md:text-4xl font-bold text-white">{copy.menuTitle[lang]}</h2>
             <div className="w-16 h-0.5 bg-gold mx-auto mt-4" />
           </div>
           <MenuSection defaultBranch="medina" />

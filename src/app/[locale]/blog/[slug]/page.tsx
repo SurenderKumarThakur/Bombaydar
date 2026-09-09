@@ -93,7 +93,7 @@ export default async function BlogPostPage({
         <div className="container mx-auto px-4 max-w-3xl">
           <Breadcrumbs items={[{ name: isFr ? "Journal" : "Journal", url: `${localePrefix}/blog` }, { name: post.title.slice(0, 40) + "…", url: `${localePrefix}/blog/${post.slug}` }]} />
           <span className="text-xs uppercase tracking-widest text-gold font-bold block mt-6 mb-2">
-            {new Date(post.date).toLocaleDateString(isFr ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {post.readMinutes} min read
+            {new Date(post.date).toLocaleDateString(isFr ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {post.readMinutes} min {isFr ? 'de lecture' : 'read'}
           </span>
           <h1 className="font-serif text-3xl md:text-4xl font-bold text-white mb-6">{post.title}</h1>
         </div>
@@ -127,9 +127,9 @@ export default async function BlogPostPage({
         </div>
 
         <div className="mt-12 p-8 glass-panel rounded-2xl text-center reveal-on-scroll up">
-          <h2 className="font-serif text-xl font-bold text-white mb-2">Hungry after all that?</h2>
-          <p className="text-sm text-sand mb-5">Taste it at any of our three locations in Marrakech & Casablanca.</p>
-          <Link href={`${localePrefix}/locations`} className="btn-primary">Find Your Table</Link>
+          <h2 className="font-serif text-xl font-bold text-white mb-2">{isFr ? "Une petite faim après tout ça ?" : "Hungry after all that?"}</h2>
+          <p className="text-sm text-sand mb-5">{isFr ? "Goûtez-y dans l'une de nos trois adresses à Marrakech & Casablanca." : "Taste it at any of our three locations in Marrakech & Casablanca."}</p>
+          <Link href={`${localePrefix}/locations`} className="btn-primary">{isFr ? "Trouver Votre Table" : "Find Your Table"}</Link>
         </div>
       </article>
     </div>

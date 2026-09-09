@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { generateMenuItemSchema } from '@/lib/schema';
 
@@ -883,7 +884,9 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 export default function MenuSection({ defaultBranch = 'gueliz' }: MenuSectionProps) {
-  const [lang, setLang] = useState<'EN' | 'FR'>('EN');
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] === 'fr' ? 'fr' : 'en';
+  const [lang, setLang] = useState<'EN' | 'FR'>(locale === 'fr' ? 'FR' : 'EN');
   const [selectedBranch, setSelectedBranch] = useState<'gueliz' | 'medina' | 'casablanca'>(defaultBranch);
   const [activeTab, setActiveTab] = useState("starters");
   const [searchQuery, setSearchQuery] = useState("");

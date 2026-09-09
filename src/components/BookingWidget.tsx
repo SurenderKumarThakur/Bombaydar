@@ -1,9 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function BookingWidget() {
-  const [lang, setLang] = useState<'EN' | 'FR'>('EN');
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] === 'fr' ? 'fr' : 'en';
+  const [lang, setLang] = useState<'EN' | 'FR'>(locale === 'fr' ? 'FR' : 'EN');
   const [location, setLocation] = useState('medina');
   const [guests, setGuests] = useState('2');
   const [date, setDate] = useState('');
